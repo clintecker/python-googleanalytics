@@ -1,3 +1,4 @@
+import datetime
 import unittest
 import googleanalytics
 from googleanalytics.exception import GoogleAnalyticsClientError
@@ -31,13 +32,17 @@ class GoogleAnalyticsTest(unittest.TestCase):
       for c in range(len(valid_profile_ids)):
         account = connection.get_account(valid_profile_ids[c])
     
-    #def test_get_data(self):
-    #  Connection = googleanalytics.Connection
-    #  connection = Connection()
-    #  valid_profile_ids = config.get_valid_profiles()
-    #  for c in range(len(valid_profile_ids)):
-    #    account = connection.get_account(valid_profile_ids[c])
-    #    account.get_data()
+    def test_basic_get_data(self):
+      Connection = googleanalytics.Connection
+      connection = Connection()
+      valid_profile_ids = config.get_valid_profiles()
+      
+      start_date = datetime.date(2009, 02, 20)
+      end_date = datetime.date(2009, 02, 21)
+      
+      for c in range(len(valid_profile_ids)):
+        account = connection.get_account(valid_profile_ids[c])
+        account.get_data(start_date=start_date, end_date=end_date)
     
     def test_basic_filter(self):
       filters = [

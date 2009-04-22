@@ -26,7 +26,7 @@ class Account:
     elif self.table_id:
       return '<Account: %s>' % self.table_id
       
-  def get_data(self, start_date, end_date, dimensions=None, metrics=None, sort=None, filters=None):
+  def get_data(self, start_date, end_date, dimensions=[], metrics=[], sort=[], filters=[]):
     """
     Pulls data in from an account and returns a processed data structure for
     easy post processing. This method requires the following inputs:
@@ -122,22 +122,24 @@ class Account:
     """
     path = '/analytics/feeds/data'
     
-    filter_string = ''
-    if filters:
-      filter_string = self.process_filters(filters)
-      
     data = {
       'ids': self.table_id,
-      'dimensions': ",".join(['ga:'+d for d in dimensions]),
-      'metrics': ",".join(['ga:'+m for m in metrics]),
-      'sort': ",".join(['ga:'+s for s in sort]),
       'start-date': start_date.strftime('%Y-%m-%d'),
       'end-date': end_date.strftime('%Y-%m-%d'),
-      'filters': filter_string,
     }
     
-    data = urllib.urlencode(data)
+    if dimensions:
+      data['dimensions'] = ",".join(['ga:'+d for d in dimensions])
+    if metrics:
+      data['metrics'] = ",".join(['ga:'+m for m in metrics])
+    if sort:
+      data['sort'] = ",".join(['ga:'+s for s in sort])
+    if filters:
+      filter_string = self.process_filters(filters)
+      data['filters'] = filter_string
     
+    data = urllib.urlencode(data)
+
     response = self.connection.make_request('GET', path=path, data=data)
     #print response.read()
   
