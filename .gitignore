@@ -8,4 +8,3 @@ downloads
 eggs
 parts
 src/*.egg-info
-tests.py
