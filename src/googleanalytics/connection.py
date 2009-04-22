@@ -8,6 +8,7 @@ import urllib
 import urllib2
 
 DEBUG = False
+PRETTYPRINT = True
 socket_timeout = 10
 socket.setdefaulttimeout(socket_timeout)
 
@@ -94,11 +95,13 @@ class GAConnection:
       print "** Data: %s" % (data,)
       print "** URL: %s" % (self.default_host+path)
     
+    if PRETTYPRINT:
+      # Doesn't seem to work yet...
+      data += "&prettyprint=true"
+    
     if method == 'POST':
       request = urllib2.Request(self.default_host + path, data, headers)
     elif method == 'GET':
-      if DEBUG:
-        path += "&prettyprint=true"
       request = urllib2.Request(self.default_host + path, headers=headers)
 
     try:
