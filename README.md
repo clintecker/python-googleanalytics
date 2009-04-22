@@ -7,11 +7,11 @@ http://code.google.com/apis/analytics/docs/gdata/gdataDeveloperGuide.html
 
 You should put your Google Credentials in a file in your home directory called `.pythongoogleanalytics`. This is a ini style config file and should look like this:
 
-`
+<pre>
 [Credentials]
 google_account_email = clintecker@gmail.com
 google_account_password = sn00pd4w6
-`
+</pre>
 
 Check out the `tests.py` file for details on how to use the library.  There's not much here at the moment.
 
