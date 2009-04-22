@@ -1,5 +1,6 @@
 from googleanalytics.exception import *
 from googleanalytics import config
+from googleanalytics.account import Account
 import pprint
 import re
 import socket
@@ -10,7 +11,7 @@ DEBUG = False
 socket_timeout = 10
 socket.setdefaulttimeout(socket_timeout)
 
-class GAConnection():
+class GAConnection:
   default_host = 'https://www.google.com'
   user_agent = 'python-gapi-1.0'
   auth_token = None
@@ -30,7 +31,7 @@ class GAConnection():
     auth_token = authtoken_pat.search(response.read())
     self.auth_token = auth_token.groups(0)[0]
     
-  def get_accounts(self, start_index=1, max_results=10):
+  def get_accounts(self, start_index=1, max_results=None):
     path = '/analytics/feeds/accounts/default'
     data = { 'start-index': start_index,}
     if max_results:
@@ -38,13 +39,33 @@ class GAConnection():
     data = urllib.urlencode(data)
     response = self.make_request('GET', path, data=data)
     raw_xml = response.read()
-    parsed_body = self.parse_response_etree(raw_xml)
-    pprint.pprint(parsed_body)
+    xml_tree = self.parse_response(raw_xml)
+    account_list = []
+    accounts = xml_tree.getiterator('{http://www.w3.org/2005/Atom}entry')
+    for account in accounts:
+      account_data = {
+        'title': account.find('{http://www.w3.org/2005/Atom}title').text,
+        'link': account.find('{http://www.w3.org/2005/Atom}link').text
+      }
+      for f in account.getiterator('{http://schemas.google.com/analytics/2009}property'):
+        account_data[f.attrib['name']] = f.attrib['value']
+      a = Account(
+        connection=self,
+        title=account_data['title'],
+        link=account_data['link'],
+        account_id=account_data['ga:accountId'],
+        account_name=account_data['ga:accountName'],
+        profile_id=account_data['ga:profileId'],
+        web_property_id=account_data['ga:webPropertyId']
+      )
+      account_list.append(a)
+    return account_list
+      
   
-  def parse_response_etree(self, xml):
+  def parse_response(self, xml):
     from xml.etree import ElementTree
     tree = ElementTree.fromstring(xml)
-    entries = tree.getiterator('entry')
+    return tree
     
   def make_request(self, method, path, headers=None, data=''):
     if headers == None:
