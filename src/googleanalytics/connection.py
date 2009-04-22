@@ -46,7 +46,6 @@ class GAConnection():
     tree = ElementTree.fromstring(xml)
     entries = tree.getiterator('entry')
     
-    
   def make_request(self, method, path, headers=None, data=''):
     if headers == None:
       headers = {
