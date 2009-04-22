@@ -1,6 +1,7 @@
 import unittest
 import googleanalytics
 from googleanalytics.exception import GoogleAnalyticsClientError
+from googleanalytics import config
 
 class GoogleAnalyticsTest(unittest.TestCase):
     def test_goodconnection(self):
@@ -18,12 +19,18 @@ class GoogleAnalyticsTest(unittest.TestCase):
     def test_accountlist(self):
       Connection = googleanalytics.Connection
       connection = Connection()
-      account_list = connection.get_accounts(max_results=1)
-      assert len(account_list) == 1
-      assert account_list[0].title != ''
-      account_list = connection.get_accounts(max_results=2)
-      assert len(account_list) == 2
-      assert account_list[0].title != ''
+      valid_profile_ids = config.get_valid_profiles()
+      for c in range(1, len(valid_profile_ids)):
+        accounts = connection.get_accounts(max_results=c)
+        assert len(accounts) == c
+    
+    def test_account_retrieval(self):
+      Connection = googleanalytics.Connection
+      connection = Connection()
+      valid_profile_ids = config.get_valid_profiles()
+      for c in range(len(valid_profile_ids)):
+        account = connection.get_account(valid_profile_ids[c])
+        print account
         
 def test_suite():
     return unittest.makeSuite(GoogleAnalyticsTest)

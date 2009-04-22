@@ -61,7 +61,7 @@ class GAConnection:
       account_list.append(a)
     return account_list
       
-  def get_account(self, profile_id):
+  def get_account(self, profile_id, validate=False):
     account = Account(connection=self, profile_id=profile_id)
     return account
   

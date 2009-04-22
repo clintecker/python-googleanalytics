@@ -12,4 +12,7 @@ class Account:
         self.table_id = 'ga:' + self.profile_id
 
     def __repr__(self):
+      if self.title:
         return '<Account: %s>' % self.title
+      elif self.table_id:
+        return '<Account: %s>' % self.table_id

@@ -11,3 +11,13 @@ def get_google_credentials():
   google_account_email = config.get('Credentials', 'google_account_email')
   google_account_password = config.get('Credentials', 'google_account_password')
   return google_account_email, google_account_password
+  
+def get_valid_profiles():
+  home_directory = os.path.expanduser("~")
+  config_file = os.path.join(home_directory,'.pythongoogleanalytics')
+  if not os.path.exists(config_file):
+    return None
+  config = ConfigParser.RawConfigParser()
+  config.read(config_file)
+  profile_ids = config.get('Accounts', 'test_profile_ids').split(' ')
+  return profile_ids
