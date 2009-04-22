@@ -13,11 +13,13 @@ class GAConnection():
   user_agent = 'python-gapi-1.0'
   auth_token = None
 
-  def __init__(self, google_email, google_password):  
+  def __init__(self, google_email=None, google_password=None):  
     authtoken_pat = re.compile(r"Auth=(.*)")
     path = '/accounts/ClientLogin'
     
-    
+    if google_email == None or google_password == None:
+      google_email, google_password = config.get_google_credentials()
+      
     data = "accountType=GOOGLE&Email=%s&Passwd=%s&service=analytics&source=%s"
     data = data % (google_email, google_password, self.user_agent)
 
