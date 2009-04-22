@@ -9,7 +9,7 @@ setup(
     url = 'http://github.com/clintecker/python-googleanalytics',
     license = 'BSD',
     description = "A python library for talking to the Google Analytics API",
-    long_description = read('README.md')
+    long_description = read('README.md'),
     
     author = 'Clint Ecker',
     author_email = 'me@clintecker.com',
