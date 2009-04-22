@@ -13,6 +13,15 @@ google_account_email = youraccount@gmail.com
 google_account_password = yourpassword
 </pre>
 
+If you want to take full advantage of the test suite, you'll need to add another section with a few valid profile IDs from the account you're testing.  Add these as follows:
+
+<pre>
+[Accounts]
+test_profile_ids = 28192 1928329 1029
+</pre>
+
+If you don't add these, we can't really test any future data pulling, and some of the account stuff.  In the future perhaps we can build a list of accounts from get_all_accounts and proceed that way.
+
 ### Installation ###
 
 Theoretically you should be able to type the following after checking out the source:
