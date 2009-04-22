@@ -70,16 +70,52 @@ class Account:
         Learn more about valid operators and expressions here:
         http://code.google.com/apis/analytics/docs/gdata/gdataReference.html#filtering
         
-        The ``filters`` input accepts this data as a list of lists like so:
+        The ``filters`` input accepts this data as a list of lists like so. Please
+        note that order matters, especially when using boolean operators (see
+        below). 
         
           [
-            ['browser', '=~', 'Firefox'], # Regular expression match on 'Firefox'
-            ['browser', '=~', 'Internet (Explorer|Exploder)'],
-            ['city', '=@', 'York'], # All cities with York as a substring
-            ['state', '!=', 'California'], # Everything but California
+            ['browser', '=~', 'Firefox', 'AND'], # Regular expression match on 'Firefox'
+            ['browser', '=~', 'Internet (Explorer|Exploder)', 'OR'],
+            ['city', '=@', 'York', 'OR'], # All cities with York as a substring
+            ['state', '!=', 'California', 'AND'], # Everything but California
             ['timeOnPage', '<', '10'], # Reject results where timeonpage < 10sec
           ]
-      
+          
+        Filters can be combined with AND boolean logic as well as with OR 
+        boolean logic. When using both operators, the OR operator has higher 
+        precendence. When you are using more than one filter, please specify
+        a fourth item in your list 'AND' or 'OR' to explicitly spell out the
+        filters' relationships:
+        
+        For example, this filter selects data from the United States from the
+        browser Firefox.
+        
+        [
+          ['country', '==', 'United States', 'OR'],
+          ['browser', '=@', 'FireFox'],
+        ]
+        
+        This filter selects data from either the United States or Canada.
+        
+        [
+          ['country', '==', 'United States', 'AND'],
+          ['country', '==', 'Canada'],
+        ]
+        
+        The first filter limits results to cities starting with 'L' and ending 
+        with 'S'. The second limits results to browsers starting with 'Fire' 
+        and the cities starting with 'L':
+        
+        [
+          ['city', '=~', '^L.*S$']
+        ]
+        
+        [
+          ['city', '=~', '^L', 'AND'],
+          ['browser', '=~', '^Fire']
+        ]
+        
       """
       path = '/analytics/feeds/data'
       
