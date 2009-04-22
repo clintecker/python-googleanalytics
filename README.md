@@ -23,8 +23,7 @@ Theoretically you should be able to type the following after checking out the so
 
 I'm trying to use Buildout, so you can start helping out with development by checking out the source and typing the following:
 
-`python bootstrap.py`
-`./bin/buildout`
+`python bootstrap.py && ./bin/buildout`
 
 Run tests as follows:
 
