@@ -9,8 +9,8 @@ You should put your Google Credentials in a file in your home directory called `
 
 <pre>
 [Credentials]
-google_account_email = clintecker@gmail.com
-google_account_password = sn00pd4w6
+google_account_email = youraccount@gmail.com
+google_account_password = yourpassword
 </pre>
 
 ### Installation ###
