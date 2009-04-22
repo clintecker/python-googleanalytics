@@ -1,7 +1,7 @@
 class Account:
     def __init__(self, connection=None, title=None, link=None,
       account_id=None, account_name=None, profile_id=None,
-      web_property_id=None):
+      web_property_id=None, table_id=None):
         self.connection = connection
         self.title = title
         self.link = link
@@ -9,7 +9,10 @@ class Account:
         self.account_name = account_name
         self.profile_id = profile_id
         self.web_property_id = web_property_id
-        self.table_id = 'ga:' + self.profile_id
+        if table_id:
+          self.table_id = table_id
+        else:
+          self.table_id = 'ga:' + self.profile_id
 
     def __repr__(self):
       if self.title:

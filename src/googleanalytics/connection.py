@@ -46,6 +46,7 @@ class GAConnection:
       account_data = {
         'title': account.find('{http://www.w3.org/2005/Atom}title').text,
         'link': account.find('{http://www.w3.org/2005/Atom}link').text
+        'table_id': account.find('{http://schemas.google.com/analytics/2009}tableId').text
       }
       for f in account.getiterator('{http://schemas.google.com/analytics/2009}property'):
         account_data[f.attrib['name']] = f.attrib['value']
@@ -53,6 +54,7 @@ class GAConnection:
         connection=self,
         title=account_data['title'],
         link=account_data['link'],
+        table_id=account_data['table_id'],
         account_id=account_data['ga:accountId'],
         account_name=account_data['ga:accountName'],
         profile_id=account_data['ga:profileId'],
@@ -94,6 +96,8 @@ class GAConnection:
     if method == 'POST':
       request = urllib2.Request(self.default_host + path, data, headers)
     elif method == 'GET':
+      if DEBUG:
+        path += "&prettyprint=true"
       request = urllib2.Request(self.default_host + path, headers=headers)
 
     try:
