@@ -16,7 +16,8 @@ class Account:
       if table_id:
         self.table_id = table_id
       else:
-        self.table_id = 'ga:' + self.profile_id
+        if self.profile_id:
+          self.table_id = 'ga:' + self.profile_id
       self.validated = validated
 
   def __repr__(self):
@@ -62,11 +63,11 @@ class Account:
     ``filters``
       A list of filters.  A filter expression has three parts:
       
-        name —  The name of the dimension or metric to filter on. 
+        name - The name of the dimension or metric to filter on. 
                 For example: ga:pageviews will filter on the pageviews metric.
-        operator —  Defines the type of filter match to use. Operators are 
+        operator - Defines the type of filter match to use. Operators are 
                     specific to either dimensions or metrics.
-        expression —  States the values included or excluded from the results.
+        expression - States the values included or excluded from the results.
                       Expressions use regular expression syntax.
 
       Learn more about valid operators and expressions here:
@@ -140,7 +141,7 @@ class Account:
     response = self.connection.make_request('GET', path=path, data=data)
     #print response.read()
   
-  def process_filters(filters):
+  def process_filters(self, filters):
     processed_filters = []
     multiple_filters = False
     if len(filters) > 1:
@@ -175,7 +176,5 @@ class Account:
         expression = expression.replace(';', '\;')
       
       processed_filters.append("".join([name,operator,expression,comb]))
-    print processed_filters
     filter_string = "".join(processed_filters)
-    print filter_string
     return filter_string
