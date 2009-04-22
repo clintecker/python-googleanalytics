@@ -9,6 +9,7 @@ class Account:
         self.account_name = account_name
         self.profile_id = profile_id
         self.web_property_id = web_property_id
+        self.table_id = 'ga:' + self.profile_id
 
     def __repr__(self):
         return '<Account: %s>' % self.title

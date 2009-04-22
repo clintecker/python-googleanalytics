@@ -61,6 +61,9 @@ class GAConnection:
       account_list.append(a)
     return account_list
       
+  def get_account(self, profile_id):
+    account = Account(connection=self, profile_id=profile_id)
+    return account
   
   def parse_response(self, xml):
     from xml.etree import ElementTree
