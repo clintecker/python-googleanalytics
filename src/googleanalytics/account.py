@@ -141,8 +141,12 @@ class Account:
     data = urllib.urlencode(data)
 
     response = self.connection.make_request('GET', path=path, data=data)
-    #print response.read()
-  
+    raw_xml = response.read()
+    print raw_xml
+    xml_tree = self.connection.parse_response(raw_xml)
+    data_rows = xml_tree.getiterator('{http://www.w3.org/2005/Atom}entry')
+    return data_rows
+    
   def process_filters(self, filters):
     processed_filters = []
     multiple_filters = False
