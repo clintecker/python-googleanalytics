@@ -7,7 +7,7 @@ setup(
     license = 'BSD',
     description = "A python library for talking to the Google Analytics API",
     author = 'Clint Ecker',
-    packages = find_packages('src'),
-    package_dir = {'': 'src'},
+    packages=['googleanalytics'],
+    package_dir={'': 'src'},
     install_requires = ['setuptools'],
 )
