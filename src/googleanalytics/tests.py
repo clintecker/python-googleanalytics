@@ -31,13 +31,16 @@ class GoogleAnalyticsTest(unittest.TestCase):
       for c in range(len(valid_profile_ids)):
         account = connection.get_account(valid_profile_ids[c])
     
-    def test_get_data(self):
-      Connection = googleanalytics.Connection
-      connection = Connection()
-      valid_profile_ids = config.get_valid_profiles()
-      for c in range(len(valid_profile_ids)):
-        account = connection.get_account(valid_profile_ids[c])
-        account.get_data()
+    #def test_get_data(self):
+    #  Connection = googleanalytics.Connection
+    #  connection = Connection()
+    #  valid_profile_ids = config.get_valid_profiles()
+    #  for c in range(len(valid_profile_ids)):
+    #    account = connection.get_account(valid_profile_ids[c])
+    #    account.get_data()
+    
+    def test_filter_process(self):
+      pass
         
 def test_suite():
     return unittest.makeSuite(GoogleAnalyticsTest)
