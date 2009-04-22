@@ -9,5 +9,5 @@ setup(
     author = 'Clint Ecker',
     packages=['googleanalytics'],
     package_dir={'': 'src'},
-    install_requires = ['setuptools'],
+    install_requires = ['setuptools', 'feedparser'],
 )
