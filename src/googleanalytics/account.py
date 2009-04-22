@@ -160,21 +160,29 @@ class Account:
         if comb != 'AND' and comb != 'OR':
           comb == 'AND'
       
+      # Reject any filters with invalid operators
       if operator not in filter_operators:
         continue
       
       name = 'ga:' + name
       
+      # Mapping to GA's boolean operators
       if comb == 'AND': comb = ';'
       if comb == 'OR': comb = ','
       
+      # These three characters are special and must be escaped
       if '\\' in expression:
         expression = expression.replace('\\', '\\\\')
       if ',' in expression:
         expression = expression.replace(',', '\,')
       if ';' in expression:
         expression = expression.replace(';', '\;')
-      
+    
       processed_filters.append("".join([name,operator,expression,comb]))
     filter_string = "".join(processed_filters)
+    
+    # Strip any trailing boolean symbols
+    if filter_string:
+      if filter_string[-1] == ';' or filter_string[-1] == ',':
+        filter_string = filter_string[:-1]
     return filter_string

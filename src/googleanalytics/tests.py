@@ -80,6 +80,41 @@ class GoogleAnalyticsTest(unittest.TestCase):
       filter_string = account.process_filters(filters)
       assert filter_string == ''
       
-        
+    def test_multiple_filters(self):
+      filters = [
+        ['country', '==', 'United States', 'AND'],
+        ['country', '==', 'Canada']
+      ]
+      account = googleanalytics.account.Account()
+      filter_string = account.process_filters(filters)
+      assert filter_string == 'ga:country==United States;ga:country==Canada'
+      
+      filters = [
+        ['city', '=~', '^L', 'AND'],
+        ['browser', '=~', '^Fire']
+      ]
+      filter_string = account.process_filters(filters)
+      assert filter_string == 'ga:city=~^L;ga:browser=~^Fire'
+      
+      filters = [
+        ['browser', '=~', '^Fire', 'OR'],
+        ['browser', '=~', '^Internet', 'OR'],
+        ['browser', '=~', '^Saf'],
+      ]
+      filter_string = account.process_filters(filters)
+      assert filter_string == 'ga:browser=~^Fire,ga:browser=~^Internet,ga:browser=~^Saf'
+      
+    def test_multiple_filters_mix_ops(self):
+      filters = [
+        ['browser', '=~', 'Firefox', 'AND'],
+        ['browser', '=~', 'Internet (Explorer|Exploder)', 'OR'],
+        ['city', '=@', 'York', 'OR'],
+        ['state', '!=', 'California', 'AND'],
+        ['timeOnPage', '<', '10'],
+      ]
+      account = googleanalytics.account.Account()
+      filter_string = account.process_filters(filters)
+      assert filter_string == 'ga:browser=~Firefox;ga:browser=~Internet (Explorer|Exploder),ga:city=@York,ga:state!=California;ga:timeOnPage<10'
+
 def test_suite():
     return unittest.makeSuite(GoogleAnalyticsTest)
