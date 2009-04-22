@@ -1,7 +1,7 @@
 class Account:
     def __init__(self, connection=None, title=None, link=None,
       account_id=None, account_name=None, profile_id=None,
-      web_property_id=None, table_id=None):
+      web_property_id=None, table_id=None, validated=False):
         self.connection = connection
         self.title = title
         self.link = link
@@ -13,6 +13,7 @@ class Account:
           self.table_id = table_id
         else:
           self.table_id = 'ga:' + self.profile_id
+        self.validated = validated
 
     def __repr__(self):
       if self.title:

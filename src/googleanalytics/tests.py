@@ -24,13 +24,12 @@ class GoogleAnalyticsTest(unittest.TestCase):
         accounts = connection.get_accounts(max_results=c)
         assert len(accounts) == c
     
-    def test_account_retrieval(self):
+    def test_account_retrieval_unvalidated(self):
       Connection = googleanalytics.Connection
       connection = Connection()
       valid_profile_ids = config.get_valid_profiles()
       for c in range(len(valid_profile_ids)):
         account = connection.get_account(valid_profile_ids[c])
-        print account
         
 def test_suite():
     return unittest.makeSuite(GoogleAnalyticsTest)
