@@ -1,7 +1,12 @@
 from googleanalytics.exception import GoogleAnalyticsClientError
+from googleanalytics.data import DataPoint, DataSet
+import pprint
 import urllib
 
 filter_operators = ['==', '!=', '>', '<', '>=', '<=', '=~', '!~', '=@', '!@']
+data_converters = {
+  'integer': int,
+}
 
 class Account:
   def __init__(self, connection=None, title=None, link=None,
@@ -132,23 +137,51 @@ class Account:
       'end-date': end_date.strftime('%Y-%m-%d'),
     }
     
+    
     if dimensions:
       data['dimensions'] = ",".join(['ga:'+d for d in dimensions])
     if metrics:
       data['metrics'] = ",".join(['ga:'+m for m in metrics])
     if sort:
-      data['sort'] = ",".join(['ga:'+s for s in sort])
+      _sort = []
+      for s in sort:
+        pre= 'ga:'
+        if s[0] == '-':
+          pre = '-ga:'
+          s = s[1:]
+        _sort.append(pre+s)
+      data['sort'] = ",".join(_sort)
     if filters:
       filter_string = self.process_filters(filters)
       data['filters'] = filter_string
     
+    processed_data = DataSet()
     data = urllib.urlencode(data)
 
     response = self.connection.make_request('GET', path=path, data=data)
     raw_xml = response.read()
+    #print raw_xml
     xml_tree = self.connection.parse_response(raw_xml)
     data_rows = xml_tree.getiterator('{http://www.w3.org/2005/Atom}entry')
-    return data_rows
+    for row in data_rows:
+      values = {}
+      m = row.find('{http://schemas.google.com/analytics/2009}metric')
+      d = row.find('{http://schemas.google.com/analytics/2009}dimension')
+      title = row.find('{http://www.w3.org/2005/Atom}title').text
+      if m == None or d == None:
+        continue
+      # detect datatype and convert if possible
+      if m.attrib['type'] in data_converters.keys():
+        m.attrib['value'] = data_converters[m.attrib['type']](m.attrib['value'])
+      dp = DataPoint(
+        account=self, 
+        connection=self.connection, 
+        title=title, 
+        metric=m.attrib['value'], 
+        dimension=d.attrib['value']
+      )
+      processed_data.append(dp)
+    return processed_data
     
   def process_filters(self, filters):
     processed_filters = []

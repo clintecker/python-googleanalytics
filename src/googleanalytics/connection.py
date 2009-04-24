@@ -18,13 +18,13 @@ class GAConnection:
   user_agent = 'python-gapi-1.0'
   auth_token = None
 
-  def __init__(self, google_email=None, google_password=None):  
+  def __init__(self, google_email=None, google_password=None):
     authtoken_pat = re.compile(r"Auth=(.*)")
     path = '/accounts/ClientLogin'
-    
+
     if google_email == None or google_password == None:
       google_email, google_password = config.get_google_credentials()
-      
+
     data = "accountType=GOOGLE&Email=%s&Passwd=%s&service=analytics&source=%s"
     data = data % (google_email, google_password, self.user_agent)
     if DEBUG:
@@ -32,7 +32,8 @@ class GAConnection:
     response = self.make_request('POST', path=path, data=data)
     auth_token = authtoken_pat.search(response.read())
     self.auth_token = auth_token.groups(0)[0]
-    
+
+
   def get_accounts(self, start_index=1, max_results=None):
     path = '/analytics/feeds/accounts/default'
     data = { 'start-index': start_index,}
@@ -65,15 +66,17 @@ class GAConnection:
       )
       account_list.append(a)
     return account_list
-      
+
   def get_account(self, profile_id, validate=False):
     account = Account(connection=self, profile_id=profile_id)
     return account
-  
+
+
   def parse_response(self, xml):
     tree = ElementTree.fromstring(xml)
     return tree
-    
+
+
   def make_request(self, method, path, headers=None, data=''):
     if headers == None:
       headers = {

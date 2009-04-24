@@ -8,3 +8,6 @@ downloads
 eggs
 parts
 src/*.egg-info
+*~
+*.swp
+build
