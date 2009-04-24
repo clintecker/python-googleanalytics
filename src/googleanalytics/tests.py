@@ -32,7 +32,20 @@ class GoogleAnalyticsTest(unittest.TestCase):
       for c in range(len(valid_profile_ids)):
         account = connection.get_account(valid_profile_ids[c])
     
-    def test_basic_get_data(self):
+    def test_bad_date_order(self):
+      Connection = googleanalytics.Connection
+      connection = Connection()
+      valid_profile_ids = config.get_valid_profiles()
+      
+      start_date = datetime.date(2009, 02, 21)
+      end_date = datetime.date(2009, 02, 20)
+      account = connection.get_account(valid_profile_ids[0])
+      try:
+        data = account.get_data(start_date=start_date, end_date=end_date)
+      except GoogleAnalyticsClientError, e:
+        assert str(e.reason) == "Date orders are reversed"
+        
+    def test_basic_get_data_no_params(self):
       Connection = googleanalytics.Connection
       connection = Connection()
       valid_profile_ids = config.get_valid_profiles()
@@ -43,19 +56,19 @@ class GoogleAnalyticsTest(unittest.TestCase):
       for c in range(len(valid_profile_ids)):
         account = connection.get_account(valid_profile_ids[c])
         data = account.get_data(start_date=start_date, end_date=end_date)
-        assert len(data) > 0
+        assert len(data) == 1
         
     def test_dimensions_get_data(self):
       Connection = googleanalytics.Connection
       connection = Connection()
       valid_profile_ids = config.get_valid_profiles()
-
+    
       start_date = datetime.date(2009, 02, 20)
       end_date = datetime.date(2009, 02, 21)
-
+    
       for c in range(len(valid_profile_ids)):
         account = connection.get_account(valid_profile_ids[c])
-        data = account.get_data(start_date=start_date, end_date=end_date, dimensions=['browser', 'country'])
+        data = account.get_data(start_date=start_date, end_date=end_date, dimensions=['browser',], metrics=['pageviews',])
         assert len(data) > 0
         
     def test_basic_filter(self):

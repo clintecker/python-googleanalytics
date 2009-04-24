@@ -1,6 +1,7 @@
-from googleanalytics.exception import *
+from googleanalytics.exception import GoogleAnalyticsClientError
 from googleanalytics import config
 from googleanalytics.account import Account
+from xml.etree import ElementTree
 import pprint
 import re
 import socket
@@ -70,7 +71,6 @@ class GAConnection:
     return account
   
   def parse_response(self, xml):
-    from xml.etree import ElementTree
     tree = ElementTree.fromstring(xml)
     return tree
     

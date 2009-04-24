@@ -1,3 +1,4 @@
+from googleanalytics.exception import GoogleAnalyticsClientError
 import urllib
 
 filter_operators = ['==', '!=', '>', '<', '>=', '<=', '=~', '!~', '=@', '!@']
@@ -122,6 +123,9 @@ class Account:
     """
     path = '/analytics/feeds/data'
     
+    if start_date > end_date:
+      raise GoogleAnalyticsClientError('Date orders are reversed')
+
     data = {
       'ids': self.table_id,
       'start-date': start_date.strftime('%Y-%m-%d'),
@@ -142,7 +146,6 @@ class Account:
 
     response = self.connection.make_request('GET', path=path, data=data)
     raw_xml = response.read()
-    print raw_xml
     xml_tree = self.connection.parse_response(raw_xml)
     data_rows = xml_tree.getiterator('{http://www.w3.org/2005/Atom}entry')
     return data_rows
