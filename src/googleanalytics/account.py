@@ -178,20 +178,21 @@ class Account:
     data_rows = xml_tree.getiterator('{http://www.w3.org/2005/Atom}entry')
     for row in data_rows:
       values = {}
-      m = row.find('{http://schemas.google.com/analytics/2009}metric')
-      d = row.find('{http://schemas.google.com/analytics/2009}dimension')
+      ms = row.findall('{http://schemas.google.com/analytics/2009}metric')
+      ds = row.findall('{http://schemas.google.com/analytics/2009}dimension')
       title = row.find('{http://www.w3.org/2005/Atom}title').text
-      if m == None or d == None:
+      if len(ms) == 0 or len(ds) == 0:
         continue
       # detect datatype and convert if possible
-      if m.attrib['type'] in data_converters.keys():
-        m.attrib['value'] = data_converters[m.attrib['type']](m.attrib['value'])
+      for m in ms:
+        if m.attrib['type'] in data_converters.keys():
+          m.attrib['value'] = data_converters[m.attrib['type']](m.attrib['value'])
       dp = DataPoint(
         account=self, 
         connection=self.connection, 
         title=title, 
-        metric=m.attrib['value'], 
-        dimension=d.attrib['value']
+        metrics=[m.attrib['value'] for m in ms], 
+        dimensions=[d.attrib['value'] for d in ds]
       )
       processed_data.append(dp)
     return processed_data

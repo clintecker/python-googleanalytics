@@ -23,12 +23,18 @@ class DataSet(list):
 class DataPoint:
   """docstring for DataPoint"""
   
-  def __init__(self, account=None, connection=None, title=None, dimension=None, metric=None):
+  def __init__(self, account=None, connection=None, title=None, dimensions=None, metrics=None):
     self.account = account
     self.connection = connection
     self.title = title
-    self.dimension = dimension
-    self.metric = metric
+    self.dimensions = dimensions
+    self.metrics = metrics
+
+    if len(self.dimensions) == 1:
+      self.dimension = self.dimensions[0]
+
+    if len(self.metrics) == 1:
+      self.metric = self.metrics[0]
   
   def __repr__(self):
     return '<DataPoint: %s / %s>' % (self.account.table_id, self.title)
