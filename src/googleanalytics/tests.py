@@ -168,5 +168,22 @@ class GoogleAnalyticsTest(unittest.TestCase):
     filter_string = account.process_filters(filters)
     assert filter_string == 'ga:browser=~Firefox;ga:browser=~Internet (Explorer|Exploder),ga:city=@York,ga:state!=California;ga:timeOnPage<10'
 
+  def test_paging(self):
+    Connection = googleanalytics.Connection
+    connection = Connection()
+    valid_profile_ids = config.get_valid_profiles()
+
+    end_date = datetime.datetime.today()
+    start_date = end_date-datetime.timedelta(days=2)
+
+    for c in range(len(valid_profile_ids)):
+      account = connection.get_account(valid_profile_ids[c])
+      data1 = account.get_data(start_date=start_date, end_date=end_date, dimensions=['pageTitle', 'pagePath'], metrics=['pageviews',], sort=['-pageviews',], max_results=10)
+      assert len(data1) == 10
+      data2 = account.get_data(start_date=start_date, end_date=end_date, dimensions=['pageTitle', 'pagePath'], metrics=['pageviews',], sort=['-pageviews',], max_results=10, start_index=11)
+      assert len(data2) == 10
+      for value in data1:
+      	assert value not in data2
+
 def test_suite():
   return unittest.makeSuite(GoogleAnalyticsTest)

@@ -32,7 +32,7 @@ class Account:
     elif self.table_id:
       return '<Account: %s>' % self.table_id
       
-  def get_data(self, start_date, end_date, dimensions=[], metrics=[], sort=[], filters=[]):
+  def get_data(self, start_date, end_date, dimensions=[], metrics=[], sort=[], filters=[], start_index=0, max_results=0):
     """
     Pulls data in from an account and returns a processed data structure for
     easy post processing. This method requires the following inputs:
@@ -124,6 +124,14 @@ class Account:
         ['city', '=~', '^L', 'AND'],
         ['browser', '=~', '^Fire']
       ]
+
+    ``start_index``
+      The first row to return, starts at 1. This is useful for paging in combination with
+      max_results, and also to get results past row 1000 (Google Data does not return
+      more than 1000 results at once)
+      
+    ``max_results``
+      Number of results to return.
       
     """
     path = '/analytics/feeds/data'
@@ -136,7 +144,12 @@ class Account:
       'start-date': start_date.strftime('%Y-%m-%d'),
       'end-date': end_date.strftime('%Y-%m-%d'),
     }
+
+    if start_index > 0:
+    	data['start-index'] = str(start_index)
     
+    if max_results > 0:
+    	data['max-results'] = str(max_results)
     
     if dimensions:
       data['dimensions'] = ",".join(['ga:'+d for d in dimensions])
