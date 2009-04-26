@@ -144,8 +144,8 @@ Patrick Collison has graciously implemented pulling multiple metrics and data in
 >>> start_date = end_date-datetime.timedelta(days=2)
 >>> data = account.get_data(start_date=start_date, end_date=end_date, dimensions=['pageTitle', 'pagePath'], metrics=['pageviews','timeOnPage','entrances'], max_results=10)
 >>> data
-[<DataPoint: ga:7337113 / ga:pageTitle=How to find out more about Clint Ecker - Django Developer | ga:pagePath=/>]
->>> data.tuple
+[&lt;DataPoint: ga:7337113 / ga:pageTitle=How to find out more about Clint Ecker - Django Developer | ga:pagePath=/&gt;]
+&gt;&gt;&gt; data.tuple
 ((['How to find out more about Clint Ecker - Django Developer', '/'], [5, '0.0', 5]),)
 </pre>
 
