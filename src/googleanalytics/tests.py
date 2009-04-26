@@ -187,5 +187,22 @@ class GoogleAnalyticsTest(unittest.TestCase):
       for value in data1.tuple:
       	assert value not in data2
 
+  def test_multiple_dimensions(self):
+    Connection = googleanalytics.Connection
+    connection = Connection()
+    valid_profile_ids = config.get_valid_profiles()
+
+    end_date = datetime.datetime.today()
+    start_date = end_date-datetime.timedelta(days=2)
+
+    for c in range(len(valid_profile_ids)):
+      account = connection.get_account(valid_profile_ids[c])
+      data = account.get_data(start_date=start_date, end_date=end_date, dimensions=['pageTitle', 'pagePath'], metrics=['pageviews','timeOnPage','entrances'], max_results=10)
+      for t in data.tuple:
+        #print t
+        assert len(t) == 2
+        assert len(t[0]) == 2
+        assert len(t[1]) == 3
+
 def test_suite():
   return unittest.makeSuite(GoogleAnalyticsTest)
