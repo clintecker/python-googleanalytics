@@ -1,6 +1,6 @@
 April 26: 1.0.2 Released
 
-  * Merged in changes from Robera Kosara, Michael Greene, and Patrick Collison which add multiple dimension and multiple metric support, pagination in data results, various style fixed, and bug fixes.
+  * Merged in changes from Robert Kosara, Michael Greene, and Patrick Collison which add multiple dimension and multiple metric support, pagination in data results, various style fixed, and bug fixes.
   * Updated documentation and split out information into INSTALL/USAGE/README/AUTHORS so people can find information more easily.
 
 April 25: 1.0.1 Released
