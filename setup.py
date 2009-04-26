@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 
 setup(
   name = "python-googleanalytics",
-  version = "1.0",
+  version = "1.0.2",
   url = 'http://github.com/clintecker/python-googleanalytics',
   license = 'BSD',
   description = "A python library for talking to the Google Analytics API",
@@ -28,6 +28,7 @@ setup(
     'License :: OSI Approved :: BSD License',
     'Operating System :: OS Independent',
     'Programming Language :: Python',
+    'Programming Language :: Python :: 2.5',
     'Topic :: Internet',
   ]
 )
