@@ -168,6 +168,7 @@ class GoogleAnalyticsTest(unittest.TestCase):
     filter_string = account.process_filters(filters)
     assert filter_string == 'ga:browser=~Firefox;ga:browser=~Internet (Explorer|Exploder),ga:city=@York,ga:state!=California;ga:timeOnPage<10'
 
+  # for this to work, the test account has to track at least 20 pages
   def test_paging(self):
     Connection = googleanalytics.Connection
     connection = Connection()
@@ -181,8 +182,9 @@ class GoogleAnalyticsTest(unittest.TestCase):
       data1 = account.get_data(start_date=start_date, end_date=end_date, dimensions=['pageTitle', 'pagePath'], metrics=['pageviews',], sort=['-pageviews',], max_results=10)
       assert len(data1) == 10
       data2 = account.get_data(start_date=start_date, end_date=end_date, dimensions=['pageTitle', 'pagePath'], metrics=['pageviews',], sort=['-pageviews',], max_results=10, start_index=11)
+      #print data2.tuple
       assert len(data2) == 10
-      for value in data1:
+      for value in data1.tuple:
       	assert value not in data2
 
 def test_suite():

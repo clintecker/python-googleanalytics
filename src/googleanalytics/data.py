@@ -6,7 +6,7 @@ class DataSet(list):
     
   @property
   def list(self):
-    return [[r.dimension, r.metric] for r in self]
+    return [[r.dimensions, r.metrics] for r in self]
   
   @property
   def tuple(self):
