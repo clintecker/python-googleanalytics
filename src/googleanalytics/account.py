@@ -32,7 +32,7 @@ class Account:
     elif self.table_id:
       return '<Account: %s>' % self.table_id
       
-  def get_data(self, start_date, end_date, dimensions=[], metrics=[], sort=[], filters=[], start_index=0, max_results=0):
+  def get_data(self, start_date, end_date, metrics, dimensions=[], sort=[], filters=[], start_index=0, max_results=0):
     """
     Pulls data in from an account and returns a processed data structure for
     easy post processing. This method requires the following inputs:
@@ -44,7 +44,13 @@ class Account:
       
     ``end_date``
       A ``datetime`` object for the upper bound of your query
+
+    ``metrics``
+      A list of metrics, for example: ['pageviews', 'uniquePageviews']
     
+      See: http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html
+      See: http://code.google.com/apis/analytics/docs/gdata/gdataReference.html#dimensionsAndMetrics
+
     ** Optional Arguments **
     
     ``dimensions``
@@ -53,12 +59,6 @@ class Account:
       See: http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html
       See: http://code.google.com/apis/analytics/docs/gdata/gdataReference.html#dimensionsAndMetrics
 
-    ``metrics``
-      A list of metrics, for example: ['pageviews', 'uniquePageviews']
-    
-      See: http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html
-      See: http://code.google.com/apis/analytics/docs/gdata/gdataReference.html#dimensionsAndMetrics
-      
     ``sort``
       A list of dimensions or metrics to sort the output by, should probably
       be one of the items you specified in ``dimensions`` or ``metrics``.
@@ -153,8 +153,7 @@ class Account:
     
     if dimensions:
       data['dimensions'] = ",".join(['ga:'+d for d in dimensions])
-    if metrics:
-      data['metrics'] = ",".join(['ga:'+m for m in metrics])
+    data['metrics'] = ",".join(['ga:'+m for m in metrics])
     if sort:
       _sort = []
       for s in sort:
@@ -181,7 +180,7 @@ class Account:
       ms = row.findall('{http://schemas.google.com/analytics/2009}metric')
       ds = row.findall('{http://schemas.google.com/analytics/2009}dimension')
       title = row.find('{http://www.w3.org/2005/Atom}title').text
-      if len(ms) == 0 or len(ds) == 0:
+      if len(ms) == 0:
         continue
       # detect datatype and convert if possible
       for m in ms:
