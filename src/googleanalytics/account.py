@@ -23,6 +23,7 @@ class Account:
         self.time_zone = time_zone
         self.updated = updated
         self.web_property_id = web_property_id
+        self.table_id = table_id
 
     def __repr__(self):
         return '<Account: %s>' % self.title
