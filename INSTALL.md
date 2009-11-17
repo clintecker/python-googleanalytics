@@ -83,6 +83,16 @@ Installing setuptools............done.
 </pre>
 
 ## Testing ##
+You will need to create a `.pythongoogleanalytics` configuration file in your home directory with the following settings (replacing the values with a valid Google Analytics account and profile ids) in order for the tests to run:
+
+<pre>
+[Credentials]
+google_account_email = youraccount@gmail.com
+google_account_password = yourpassword
+
+[Accounts]
+test_profile_ids = 1234 5678
+</pre>
 
 Run tests as follows (once you've bootstrapped buildout or installed the module globally):
 
