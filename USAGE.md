@@ -46,7 +46,11 @@ Once you have an `Account` object you can start pulling data from it.  Reports a
 
 Google specifies all these with `ga:` prepended to each dimension or metric.  Right now I require you don't specify the `ga:` part.  What I mean is that when you want `ga:pagePath` you pass in `pagePath`.  Leave off the `ga:` for now.
 
-In addition to dimensions and metrics you can specify sorting and filtering parameters, both optional.  *Definitely required* though are lower and upper bounds to the time frame you wish to gather data from.  These can be `datetime.datetime` or `datetime.date` objects.  Here's a really basic call:
+`get_data()` has three required arguments. You must provide start and end dates as the first two positional arguments, respectively, and they can be either `datetime.datetime` or `datetime.date` objects.  These dates bound the time frame for the data you request.  If you only want data for a single day, the start and end dates should be identical (the end date is inclusive).  `metrics` is the only other required argument and can be passed as the third positional argument or as a keyword argument.  However, it must be a list containing at least one valid metric to form a proper request.
+
+In addition to dimensions and metrics you can specify sorting and filtering parameters, both optional.  
+
+Here's a really basic call:
 
 <pre>
 >>> from googleanalytics import Connection
@@ -55,13 +59,11 @@ In addition to dimensions and metrics you can specify sorting and filtering para
 >>> account = connection.get_account('1234')
 >>> start_date = datetime.date(2009, 04, 10)
 >>> end_date = datetime.date(2009, 04, 10)
->>> account.get_data(start_date=start_date, end_date=end_date)
-[]
+>>> account.get_data(start_date, end_date, metrics=['pageviews'])
+[&lt;DataPoint: ga:4567 / None&gt;]
 </pre>
 
-This will, of course, return no data (no dimensions or metrics specified), but is valid.
-
-Here's one that would give you some good data, a list of browsers that accessed your site in your timeframe and how many page views each of those browsers generated.
+You can optionally retrieve metrics by various dimensions, such as a list of browsers that accessed your site in your timeframe and how many page views each of those browsers generated.
 
 <pre>
 >>> from googleanalytics import Connection
@@ -70,7 +72,7 @@ Here's one that would give you some good data, a list of browsers that accessed 
 >>> account = connection.get_account('1234')
 >>> start_date = datetime.date(2009, 04, 10)
 >>> end_date = datetime.date(2009, 04, 10)
->>> account.get_data(start_date=start_date, end_date=end_date, dimensions=['browser',], metrics=['pageviews',])
+>>> account.get_data(start_date, end_date, metrics=['pageviews'], dimensions=['browser',])
 [&lt;DataPoint: ga:6367750 / ga:browser=Chrome&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Firefox&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Internet Explorer&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Mozilla Compatible Agent&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Safari&gt;]
 </pre>
 
@@ -83,7 +85,7 @@ You could get Google to sort that for you (note FireFox is first now):
 >>> account = connection.get_account('1234')
 >>> start_date = datetime.date(2009, 04, 10)
 >>> end_date = datetime.date(2009, 04, 10)
->>> account.get_data(start_date=start_date, end_date=end_date, dimensions=['browser',], metrics=['pageviews',], sort=['-pageviews',])
+>>> account.get_data(start_date, end_date, metrics=['pageviews',], dimensions=['browser',], sort=['-pageviews',])
 [&lt;DataPoint: ga:6367750 / ga:browser=Firefox&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Internet Explorer&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Safari&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Chrome&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Mozilla Compatible Agent&gt;]
 </pre>
 
@@ -101,7 +103,7 @@ And you could do some fun filtering, get a list of browsers, sorted descending b
 ...   ['browser', '=~', '^Internet', 'OR'],
 ...   ['browser', '=~', '^Saf'],
 ... ]
->>> account.get_data(start_date=start_date, end_date=end_date, dimensions=['browser',], metrics=['pageviews',], sort=['-pageviews',], filters=filters)
+>>> account.get_data(start_date, end_date, metrics=['pageviews',], dimensions=['browser',], sort=['-pageviews',], filters=filters)
 [&lt;DataPoint: ga:6367750 / ga:browser=Firefox&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Internet Explorer&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Safari&gt;]
 </pre>
 
@@ -118,7 +120,7 @@ So how do you get useful data?  You _could_ iterate over the `DataSet` and acces
 >>> account = connection.get_account('1234')
 >>> start_date = datetime.date(2009, 04, 10)
 >>> end_date = datetime.date(2009, 04, 10)
->>> data = account.get_data(start_date=start_date, end_date=end_date, dimensions=['browser',], metrics=['pageviews',], sort=['-pageviews',])
+>>> data = account.get_data(start_date, end_date, metrics=['pageviews',], dimensions=['browser',], sort=['-pageviews',])
 >>> data.list
 [['Firefox', 21], ['Internet Explorer', 17], ['Safari', 17], ['Chrome', 6], ['Mozilla Compatible Agent', 5]]
 >>> data.tuple
@@ -142,14 +144,14 @@ Patrick Collison has graciously implemented pulling multiple metrics and data in
 >>> account = connection.get_account('1234')
 >>> end_date = datetime.datetime.today()
 >>> start_date = end_date-datetime.timedelta(days=2)
->>> data = account.get_data(start_date=start_date, end_date=end_date, dimensions=['pageTitle', 'pagePath'], metrics=['pageviews','timeOnPage','entrances'], max_results=10)
+>>> data = account.get_data(start_date, end_date, metrics=['pageviews','timeOnPage','entrances'], dimensions=['pageTitle', 'pagePath'], max_results=10)
 >>> data
 [&lt;DataPoint: ga:7337113 / ga:pageTitle=How to find out more about Clint Ecker - Django Developer | ga:pagePath=/&gt;]
 &gt;&gt;&gt; data.tuple
 ((['How to find out more about Clint Ecker - Django Developer', '/'], [5, '0.0', 5]),)
 </pre>
 
-1: The Google Analytics generally caps you out around 7 or 10 as a maximum, so don't go too crazy ;)
+1: The Google Analytics allows a maximum of 10 metrics and 7 dimensions for a given query, although not every metric/dimension combination is valid. See [the official docs](http://code.google.com/intl/en-US/apis/analytics/docs/gdata/gdataReferenceValidCombos.html) for more details.
 
 #### Pagination in data results ####
 
