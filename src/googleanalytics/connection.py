@@ -36,7 +36,7 @@ class GAConnection:
 
   def get_accounts(self, start_index=1, max_results=None):
     path = '/analytics/feeds/accounts/default'
-    data = {'start-index': start_index,}
+    data = {'start-index': start_index, }
     if max_results:
       data['max-results'] = max_results
     data = urllib.urlencode(data)
@@ -71,9 +71,9 @@ class GAConnection:
     return account_list
 
   def get_account(self, profile_id):
-    account = Account(connection=self, profile_id=profile_id)
-    return account
-
+    for account in self.get_accounts():
+      if account.profile_id == profile_id:
+          return account
 
   def parse_response(self, xml):
     tree = ElementTree.fromstring(xml)
