@@ -135,7 +135,7 @@ If you don't add these, we can't really test any future data pulling, and some o
 
 #### Pulling multiple dimensions/metrics ####
 
-Patrick Collison has graciously implemented pulling multiple metrics and data in a single request.  Instead of simple passing in a list with one metric or dimension, pass in as many as you like<sup>1</sup>
+Patrick Collison has graciously implemented pulling multiple metrics and data in a single request.  Instead of simply passing in a list with one metric or dimension, pass in as many as you like<sup>1</sup>
 
 <pre>
 >>> from googleanalytics import Connection
@@ -151,7 +151,7 @@ Patrick Collison has graciously implemented pulling multiple metrics and data in
 ((['How to find out more about Clint Ecker - Django Developer', '/'], [5, '0.0', 5]),)
 </pre>
 
-1: The Google Analytics allows a maximum of 10 metrics and 7 dimensions for a given query, although not every metric/dimension combination is valid. See [the official docs](http://code.google.com/intl/en-US/apis/analytics/docs/gdata/gdataReferenceValidCombos.html) for more details.
+1: The Google Analytics API allows a maximum of 10 metrics and 7 dimensions for a given query, although not every metric/dimension combination is valid. See [the official docs](http://code.google.com/intl/en-US/apis/analytics/docs/gdata/gdataReferenceValidCombos.html) for more details.
 
 #### Pagination in data results ####
 
