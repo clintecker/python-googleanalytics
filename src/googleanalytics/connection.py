@@ -2,7 +2,7 @@ from googleanalytics.exception import GoogleAnalyticsClientError
 from googleanalytics import config
 from googleanalytics.account import Account
 from xml.etree import ElementTree
-import pprint
+
 import re
 import socket
 import urllib
@@ -36,7 +36,7 @@ class GAConnection:
 
   def get_accounts(self, start_index=1, max_results=None):
     path = '/analytics/feeds/accounts/default'
-    data = { 'start-index': start_index,}
+    data = {'start-index': start_index,}
     if max_results:
       data['max-results'] = max_results
     data = urllib.urlencode(data)
@@ -48,7 +48,8 @@ class GAConnection:
     for account in accounts:
       account_data = {
         'title': account.find('{http://www.w3.org/2005/Atom}title').text,
-        'link': account.find('{http://www.w3.org/2005/Atom}link').text,
+        'id': account.find('{http://www.w3.org/2005/Atom}id').text,
+        'updated': account.find('{http://www.w3.org/2005/Atom}updated').text,
         'table_id': account.find('{http://schemas.google.com/analytics/2009}tableId').text,
       }
       for f in account.getiterator('{http://schemas.google.com/analytics/2009}property'):
@@ -56,18 +57,20 @@ class GAConnection:
       a = Account(
         connection=self,
         title=account_data['title'],
-        link=account_data['link'],
+        id=account_data['id'],
+        updated=account_data['updated'],
         table_id=account_data['table_id'],
         account_id=account_data['ga:accountId'],
         account_name=account_data['ga:accountName'],
+        currency=account_data['ga:currency'],
+        time_zone=account_data['ga:timezone'],
         profile_id=account_data['ga:profileId'],
         web_property_id=account_data['ga:webPropertyId'],
-        validated=True
       )
       account_list.append(a)
     return account_list
 
-  def get_account(self, profile_id, validate=False):
+  def get_account(self, profile_id):
     account = Account(connection=self, profile_id=profile_id)
     return account
 
@@ -81,14 +84,14 @@ class GAConnection:
     if headers == None:
       headers = {
         'User-Agent': self.user_agent,
-        'Authorization': 'GoogleLogin auth=%s' % self.auth_token 
+        'Authorization': 'GoogleLogin auth=%s' % self.auth_token
       }
     else:
       headers = headers.copy()
-     
+
     if DEBUG:
       print "** Headers: %s" % (headers,)
-         
+
     if method == 'GET':
       path = '%s?%s' % (path, data)
 
@@ -96,12 +99,12 @@ class GAConnection:
       print "** Method: %s" % (method,)
       print "** Path: %s" % (path,)
       print "** Data: %s" % (data,)
-      print "** URL: %s" % (self.default_host+path)
-    
+      print "** URL: %s" % (self.default_host + path)
+
     if PRETTYPRINT:
       # Doesn't seem to work yet...
       data += "&prettyprint=true"
-    
+
     if method == 'POST':
       request = urllib2.Request(self.default_host + path, data, headers)
     elif method == 'GET':

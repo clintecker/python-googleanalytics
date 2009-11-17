@@ -1,6 +1,6 @@
 from googleanalytics.exception import GoogleAnalyticsClientError
 from googleanalytics.data import DataPoint, DataSet
-import pprint
+
 import urllib
 
 filter_operators = ['==', '!=', '>', '<', '>=', '<=', '=~', '!~', '=@', '!@']
@@ -9,29 +9,32 @@ data_converters = {
 }
 
 class Account:
-  def __init__(self, connection=None, title=None, link=None,
+  def __init__(self, connection=None, title=None, id=None,
     account_id=None, account_name=None, profile_id=None,
-    web_property_id=None, table_id=None, validated=False):
+    currency=None, time_zone=None, web_property_id=None,
+    table_id=None, updated=None):
       self.connection = connection
       self.title = title
-      self.link = link
+      self.id = id
       self.account_id = account_id
       self.account_name = account_name
       self.profile_id = profile_id
+      self.currency = currency
+      self.time_zone = time_zone
+      self.updated = updated
       self.web_property_id = web_property_id
       if table_id:
         self.table_id = table_id
       else:
         if self.profile_id:
           self.table_id = 'ga:' + self.profile_id
-      self.validated = validated
 
   def __repr__(self):
     if self.title:
       return '<Account: %s>' % self.title
     elif self.table_id:
       return '<Account: %s>' % self.table_id
-      
+
   def get_data(self, start_date, end_date, metrics, dimensions=[], sort=[], filters=[], start_index=0, max_results=0):
     """
     Pulls data in from an account and returns a processed data structure for
@@ -135,7 +138,7 @@ class Account:
       
     """
     path = '/analytics/feeds/data'
-    
+
     if start_date > end_date:
       raise GoogleAnalyticsClientError('Date orders are reversed')
 
@@ -147,26 +150,26 @@ class Account:
 
     if start_index > 0:
     	data['start-index'] = str(start_index)
-    
+
     if max_results > 0:
     	data['max-results'] = str(max_results)
-    
+
     if dimensions:
-      data['dimensions'] = ",".join(['ga:'+d for d in dimensions])
-    data['metrics'] = ",".join(['ga:'+m for m in metrics])
+      data['dimensions'] = ",".join(['ga:' + d for d in dimensions])
+    data['metrics'] = ",".join(['ga:' + m for m in metrics])
     if sort:
       _sort = []
       for s in sort:
-        pre= 'ga:'
+        pre = 'ga:'
         if s[0] == '-':
           pre = '-ga:'
           s = s[1:]
-        _sort.append(pre+s)
+        _sort.append(pre + s)
       data['sort'] = ",".join(_sort)
     if filters:
       filter_string = self.process_filters(filters)
       data['filters'] = filter_string
-    
+
     processed_data = DataSet()
     data = urllib.urlencode(data)
 
@@ -187,15 +190,15 @@ class Account:
         if m.attrib['type'] in data_converters.keys():
           m.attrib['value'] = data_converters[m.attrib['type']](m.attrib['value'])
       dp = DataPoint(
-        account=self, 
-        connection=self.connection, 
-        title=title, 
-        metrics=[m.attrib['value'] for m in ms], 
+        account=self,
+        connection=self.connection,
+        title=title,
+        metrics=[m.attrib['value'] for m in ms],
         dimensions=[d.attrib['value'] for d in ds]
       )
       processed_data.append(dp)
     return processed_data
-    
+
   def process_filters(self, filters):
     processed_filters = []
     multiple_filters = False
@@ -214,17 +217,17 @@ class Account:
         name, operator, expression, comb = filt
         if comb != 'AND' and comb != 'OR':
           comb == 'AND'
-      
+
       # Reject any filters with invalid operators
       if operator not in filter_operators:
         continue
-      
+
       name = 'ga:' + name
-      
+
       # Mapping to GA's boolean operators
       if comb == 'AND': comb = ';'
       if comb == 'OR': comb = ','
-      
+
       # These three characters are special and must be escaped
       if '\\' in expression:
         expression = expression.replace('\\', '\\\\')
@@ -232,10 +235,10 @@ class Account:
         expression = expression.replace(',', '\,')
       if ';' in expression:
         expression = expression.replace(';', '\;')
-    
-      processed_filters.append("".join([name,operator,expression,comb]))
+
+      processed_filters.append("".join([name, operator, expression, comb]))
     filter_string = "".join(processed_filters)
-    
+
     # Strip any trailing boolean symbols
     if filter_string:
       if filter_string[-1] == ';' or filter_string[-1] == ',':
