@@ -23,17 +23,9 @@ class Account:
         self.time_zone = time_zone
         self.updated = updated
         self.web_property_id = web_property_id
-        if table_id:
-            self.table_id = table_id
-        else:
-            if self.profile_id:
-                self.table_id = 'ga:' + self.profile_id
 
     def __repr__(self):
-        if self.title:
-            return '<Account: %s>' % self.title
-        elif self.table_id:
-            return '<Account: %s>' % self.table_id
+        return '<Account: %s>' % self.title
 
     def get_data(self, start_date, end_date, metrics, dimensions=[], sort=[], filters=[], start_index=0, max_results=0):
         """
