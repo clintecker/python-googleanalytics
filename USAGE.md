@@ -59,8 +59,9 @@ Here's a really basic call:
 >>> account = connection.get_account('1234')
 >>> start_date = datetime.date(2009, 04, 10)
 >>> end_date = datetime.date(2009, 04, 10)
->>> account.get_data(start_date, end_date, metrics=['pageviews'])
-[&lt;DataPoint: ga:4567 / None&gt;]
+>>> data = account.get_data(start_date, end_date, metrics=['pageviews'])
+>>> data.list
+[[[], [4567]]]
 </pre>
 
 You can optionally retrieve metrics by various dimensions, such as a list of browsers that accessed your site in your timeframe and how many page views each of those browsers generated.
@@ -72,8 +73,9 @@ You can optionally retrieve metrics by various dimensions, such as a list of bro
 >>> account = connection.get_account('1234')
 >>> start_date = datetime.date(2009, 04, 10)
 >>> end_date = datetime.date(2009, 04, 10)
->>> account.get_data(start_date, end_date, metrics=['pageviews'], dimensions=['browser',])
-[&lt;DataPoint: ga:6367750 / ga:browser=Chrome&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Firefox&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Internet Explorer&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Mozilla Compatible Agent&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Safari&gt;]
+>>> data = account.get_data(start_date, end_date, metrics=['pageviews'], dimensions=['browser',])
+>>> data.list
+[[['Chrome'], [43293]], [['Firefox'], [6367750]], [['Internet Explorer'], [5391084]], [['Mozilla Compatible Agent'],[238179]], [['Safari'], [567432]]]
 </pre>
 
 You could get Google to sort that for you (note FireFox is first now):
@@ -85,8 +87,9 @@ You could get Google to sort that for you (note FireFox is first now):
 >>> account = connection.get_account('1234')
 >>> start_date = datetime.date(2009, 04, 10)
 >>> end_date = datetime.date(2009, 04, 10)
->>> account.get_data(start_date, end_date, metrics=['pageviews',], dimensions=['browser',], sort=['-pageviews',])
-[&lt;DataPoint: ga:6367750 / ga:browser=Firefox&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Internet Explorer&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Safari&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Chrome&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Mozilla Compatible Agent&gt;]
+>>> data = account.get_data(start_date, end_date, metrics=['pageviews',], dimensions=['browser',], sort=['pageviews',])
+>>> data.list
+[[['Firefox'], [6367750]], [['Internet Explorer'], [5391084]], [['Safari'], [567432]], [['Mozilla Compatible Agent'],[238179]], [['Chrome'], [43293]]]
 </pre>
 
 And you could do some fun filtering, get a list of browsers, sorted descending by page views, and filtered to only contain browser strings which match the three regexs below (starting with Fire OR Internet OR Saf):
@@ -103,15 +106,16 @@ And you could do some fun filtering, get a list of browsers, sorted descending b
 ...   ['browser', '=~', '^Internet', 'OR'],
 ...   ['browser', '=~', '^Saf'],
 ... ]
->>> account.get_data(start_date, end_date, metrics=['pageviews',], dimensions=['browser',], sort=['-pageviews',], filters=filters)
-[&lt;DataPoint: ga:6367750 / ga:browser=Firefox&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Internet Explorer&gt;, &lt;DataPoint: ga:6367750 / ga:browser=Safari&gt;]
+>>> data = account.get_data(start_date, end_date, metrics=['pageviews',], dimensions=['browser',], sort=['-pageviews',], filters=filters)
+>>> data.list
+[[['Firefox'], [6367750]], [['Internet Explorer'], [5391084]], [['Safari'], [567432]]]
 </pre>
 
 ### Data ###
 
-At this point you should be asking me how this data is returned to you.  In the above examples, the data is returned as a `googleanalytics.data.DataSet` object which is essentially a Python list with three "properties" (`list`/`tuple`/`dict`) added to it.  This list is populated with `googleanalytics.data.DataPoint` objects.  Each of these has an associated dimension and metric (i.e. "Firefox" and "30293") and a little more data.
+At this point you should be asking me how this data is returned to you.  In the above examples, the data is returned as a `googleanalytics.data.DataSet` object which is essentially a Python list with two shortcut "properties" (`list`/`tuple`) added to it.  This list is populated with `googleanalytics.data.DataPoint` objects.  Each `DataPoint` has `dimensions` and `metrics` properties, which are just arrays of `googleanalytics.data.Dimension` and `googleanalytics.data.Metric` objects respectively.
 
-So how do you get useful data?  You _could_ iterate over the `DataSet` and access each `DataPoint`'s metric and dimension properties directly, or you could output the whole dataset as a list of lists, tuple or tuples, or dictionary.  Example:
+So how do you get useful data?  The quickest path to the dimension and metric data is to output the whole dataset as a list of lists or a tuple of tuples.  Example:
 
 <pre>
 >>> from googleanalytics import Connection
@@ -122,20 +126,17 @@ So how do you get useful data?  You _could_ iterate over the `DataSet` and acces
 >>> end_date = datetime.date(2009, 04, 10)
 >>> data = account.get_data(start_date, end_date, metrics=['pageviews',], dimensions=['browser',], sort=['-pageviews',])
 >>> data.list
-[['Firefox', 21], ['Internet Explorer', 17], ['Safari', 17], ['Chrome', 6], ['Mozilla Compatible Agent', 5]]
+[[['Firefox'], [21]], [['Internet Explorer'], [17]], [['Safari'], [17]], [['Chrome'], [6]], [['Mozilla Compatible Agent'], [5]]]
 >>> data.tuple
-(('Firefox', 21), ('Internet Explorer', 17), ('Safari', 17), ('Chrome', 6), ('Mozilla Compatible Agent', 5))
->>> data.dict
-{'Chrome': 6, 'Internet Explorer': 17, 'Firefox': 21, 'Safari': 17, 'Mozilla Compatible Agent': 5}
+((['Firefox'], [21]), (['Internet Explorer'], [17]), (['Safari'], [17]), (['Chrome'], [6]), (['Mozilla Compatible Agent'], [5]))
 </pre>
 
-If you're concerned with the sort-order, you shouldn't really use the `dict` output as order isn't guaranteed.  `list` and `tuple` will retain the sorting order that Google Analytics output the data in.
+`list` and `tuple` will retain the sorting order of the Google Analytics results.  Each item in `list` or `tuple` are an ordered pair of lists.  The first list is the dimensions (which will be an empty list if no dimensions were defined). The second list contains the metrics, in the order they were requested in the get_data call.
 
-If you don't add these, we can't really test any future data pulling, and some of the account stuff.  In the future perhaps we can build a list of accounts from get_all_accounts and proceed that way.
 
 #### Pulling multiple dimensions/metrics ####
 
-Patrick Collison has graciously implemented pulling multiple metrics and data in a single request.  Instead of simply passing in a list with one metric or dimension, pass in as many as you like<sup>1</sup>
+Patrick Collison has graciously implemented pulling multiple metrics and data in a single request.  Instead of simply passing in a list with one metric or dimension, pass in as many as you like<sup>1</sup>.  The metrics will be returned in the order they were requested in the get_data call.
 
 <pre>
 >>> from googleanalytics import Connection
@@ -144,14 +145,105 @@ Patrick Collison has graciously implemented pulling multiple metrics and data in
 >>> account = connection.get_account('1234')
 >>> end_date = datetime.datetime.today()
 >>> start_date = end_date-datetime.timedelta(days=2)
->>> data = account.get_data(start_date, end_date, metrics=['pageviews','timeOnPage','entrances'], dimensions=['pageTitle', 'pagePath'], max_results=10)
->>> data
-[&lt;DataPoint: ga:7337113 / ga:pageTitle=How to find out more about Clint Ecker - Django Developer | ga:pagePath=/&gt;]
-&gt;&gt;&gt; data.tuple
-((['How to find out more about Clint Ecker - Django Developer', '/'], [5, '0.0', 5]),)
+>>> metrics = ['pageviews','timeOnPage','entrances']
+>>> dimensions = ['pageTitle', 'pagePath']
+>>> data = account.get_data(start_date, end_date, metrics=metrics, dimensions=dimensions, max_results=1)
+>>> data.list
+[[[u'How to find out more about Clint Ecker - Django Developer', u'/'], [5, '0.0', 5]]]
+>>> for row in data.list:
+...     print dict(zip(dimensions, row[0]))
+...     print dict(zip(metrics, row[1]))
+...     print '.'*50
+...
+{'pageTitle': u'How to find out more about Clint Ecker - Django Developer', 'pagePath': u'/'}
+{'entrances': 5, 'pageviews': 5, 'timeOnPage': u'0.0'}
 </pre>
 
 1: The Google Analytics API allows a maximum of 10 metrics and 7 dimensions for a given query, although not every metric/dimension combination is valid. See [the official docs](http://code.google.com/intl/en-US/apis/analytics/docs/gdata/gdataReferenceValidCombos.html) for more details.
+
+#### Working with `Dimension` and `Metric` objects ####
+
+Google Analytics returns far more data than just the metrics and dimensions. As such, `DataSet` (and the `DataPoint` objects the `DataSet` contains) have many attributes which make this data available.  For more information on the exact data that is returned, [see the official docs](http://code.google.com/intl/en-US/apis/analytics/docs/gdata/gdataReferenceDataFeed.html#dataResponse).  In short, all of the top-level Data Feed attributes are direct attributes of the `DataSet` instance and all of the `entry` attributes of the Data Feed are direct attributes of the `DataPoint` instances.  These attributes are named identically to the names used in the returned Data Feed, with the leading xml namespace removed (e.g. 'dxp:startDate' becomes simply 'startDate').
+
+Assume the following code as given in the following examples:
+
+<pre>
+>>> from googleanalytics import Connection
+>>> import datetime
+>>> connection = Connection('clintecker@gmail.com', 'fakefake')
+>>> account = connection.get_account('1234')
+>>> end_date = datetime.datetime.today()
+>>> start_date = end_date-datetime.timedelta(days=2)
+>>> metrics = ['pageviews','timeOnPage','entrances']
+>>> dimensions = ['pageTitle', 'pagePath']
+>>> dataset = account.get_data(start_date, end_date, metrics=metrics, dimensions=dimensions, max_results=1)
+</pre>
+
+One example of a `DataSet` level attribute is the property 'aggregates' which is an array of `Metric` objects. This property is aggregate metric data, irrespective of any dimensions for the given time span:
+<pre>
+>>> dataset.aggregates
+[<googleanalytics.data.Metric object at 0x102094b10>, <googleanalytics.data.Metric object at 0x102094ed0>, <googleanalytics.data.Metric object at 0x102094f10>]
+>>> for metric in dataset.aggregates:
+...     print "%s => %s" % (metric.name, metric.value)
+...
+pageviews => 217870
+timeOnPage => 1.2157589E7
+entrances => 63873
+</pre>
+
+The aggregate metric values are also available as direct attributes of the `DataSet` object:
+
+<pre>
+>>> dataset.pageviews
+217870
+>>> dataset.timeOnPage
+1.2157589E7
+>>> dataset.entrances
+63873
+</pre>
+
+`DataPoint` objects are comprised of `Metric` and `Dimension` objects (if applicable).  These metrics and dimensions are available directly through arrays:
+
+<pre>
+>>> dataset
+[<googleanalytics.data.DataPoint object at 0x102094f50>]
+>>> datapoint = dataset[0]
+>>> datapoint.metrics
+[<googleanalytics.data.Metric object at 0x102094b10>, <googleanalytics.data.Metric object at 0x102094ed0>, <googleanalytics.data.Metric object at 0x102094f10>]
+>>> datapoint.dimensions
+[<googleanalytics.data.Dimension object at 0x1020990d0>, <googleanalytics.data.Dimension object at 0x102099110>]
+</pre>
+
+As with the aggregates array attribute of `DataSet`, each of these metrics and dimensions are also direct attributes of the `DataPoint` object:
+
+<pre>
+>>> datapoint.pageviews
+5
+>>> datapoint.timeOnPage
+u'0.0'
+>>> datapoint.entrances
+5
+>>> datapoint.pageTitle
+u'How to find out more about Clint Ecker - Django Developer'
+>>> datapoint.pagePath
+u'/'
+</pre> 
+
+If you really need the low level data for each metric, then you should iterate through the `metrics` array of the `DataPoint` instance:
+
+<pre>
+>>> metric = datapoint.metrics[0]
+>>> metric.name
+u'pageviews'
+>>> metric.value
+5
+>>> metric.type
+u'integer'
+>>> metric.confidenceInterval
+u'0.0'
+</pre>
+
+For now, all metric values are returned as strings except in the case of when `type` is `u'integer'`. The code will cast the metric value as an integer in this case.
 
 #### Pagination in data results ####
 

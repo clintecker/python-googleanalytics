@@ -41,7 +41,7 @@ class GAConnection:
         data = urllib.urlencode(data)
         response = self.make_request('GET', path, data=data)
         raw_xml = response.read()
-        xml_tree = self.parse_response(raw_xml)
+        xml_tree = ElementTree.fromstring(raw_xml)
         account_list = []
         accounts = xml_tree.getiterator('{http://www.w3.org/2005/Atom}entry')
         for account in accounts:
@@ -73,10 +73,6 @@ class GAConnection:
         for account in self.get_accounts():
             if account.profile_id == profile_id:
                 return account
-
-    def parse_response(self, xml):
-        tree = ElementTree.fromstring(xml)
-        return tree
 
     def make_request(self, method, path, headers=None, data=''):
         if headers == None:

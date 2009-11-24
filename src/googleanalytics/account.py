@@ -1,12 +1,9 @@
 from googleanalytics.exception import GoogleAnalyticsClientError
-from googleanalytics.data import DataPoint, DataSet
+from googleanalytics.data import DataSet
 
 import urllib
 
 filter_operators = ['==', '!=', '>', '<', '>=', '<=', '=~', '!~', '=@', '!@']
-data_converters = {
-   'integer': int,
-}
 
 class Account:
     def __init__(self, connection=None, title=None, id=None,
@@ -149,7 +146,9 @@ class Account:
 
         if dimensions:
             data['dimensions'] = ",".join(['ga:' + d for d in dimensions])
+
         data['metrics'] = ",".join(['ga:' + m for m in metrics])
+
         if sort:
             _sort = []
             for s in sort:
@@ -159,36 +158,15 @@ class Account:
                     s = s[1:]
                 _sort.append(pre + s)
             data['sort'] = ",".join(_sort)
+
         if filters:
             filter_string = self.process_filters(filters)
             data['filters'] = filter_string
 
-        processed_data = DataSet()
         data = urllib.urlencode(data)
-
         response = self.connection.make_request('GET', path=path, data=data)
         raw_xml = response.read()
-        xml_tree = self.connection.parse_response(raw_xml)
-        data_rows = xml_tree.getiterator('{http://www.w3.org/2005/Atom}entry')
-        for row in data_rows:
-            values = {}
-            ms = row.findall('{http://schemas.google.com/analytics/2009}metric')
-            ds = row.findall('{http://schemas.google.com/analytics/2009}dimension')
-            title = row.find('{http://www.w3.org/2005/Atom}title').text
-            if len(ms) == 0:
-                continue
-            # detect datatype and convert if possible
-            for m in ms:
-                if m.attrib['type'] in data_converters.keys():
-                    m.attrib['value'] = data_converters[m.attrib['type']](m.attrib['value'])
-            dp = DataPoint(
-                account=self,
-                connection=self.connection,
-                title=title,
-                metrics=[m.attrib['value'] for m in ms],
-                dimensions=[d.attrib['value'] for d in ds]
-            )
-            processed_data.append(dp)
+        processed_data = DataSet(raw_xml)
         return processed_data
 
     def process_filters(self, filters):

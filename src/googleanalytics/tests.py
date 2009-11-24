@@ -53,7 +53,6 @@ class GoogleAnalyticsTest(unittest.TestCase):
             assert isinstance(data.list[0], list)
             assert isinstance(data.tuple, tuple)
             assert isinstance(data.tuple[0], tuple)
-            assert isinstance(data.dict, dict)
 
     def test_basic_filter(self):
         filters = [
@@ -133,14 +132,17 @@ class GoogleAnalyticsTest(unittest.TestCase):
         filter_string = account.process_filters(filters)
         assert filter_string == 'ga:browser=~Firefox;ga:browser=~Internet (Explorer|Exploder),ga:city=@York,ga:state!=California;ga:timeOnPage<10'
 
-    # for this to work, the test account has to track at least 20 pages
     def test_paging(self):
         for profile_id in self.valid_profile_ids:
             account = self.connection.get_account(profile_id)
-            data1 = account.get_data(self.start_date, self.end_date, metrics=['pageviews'], dimensions=['pageTitle', 'pagePath'], sort=['-pageviews'], max_results=10)
-            assert len(data1) == 10
-            data2 = account.get_data(self.start_date, self.end_date, metrics=['pageviews'], dimensions=['pageTitle', 'pagePath'], sort=['-pageviews'], max_results=10, start_index=11)
-            assert len(data2) == 10
+            data = account.get_data(self.start_date, self.end_date, metrics=['pageviews'], dimensions=['pageTitle', 'pagePath'], sort=['-pageviews'])
+            max_results = len(data) / 2
+            if not max_results:
+                print("profileId: %s does not have enough results for `test_paging`" % profile_id)
+            data1 = account.get_data(self.start_date, self.end_date, metrics=['pageviews'], dimensions=['pageTitle', 'pagePath'], sort=['-pageviews'], max_results=max_results)
+            assert len(data1) == max_results
+            data2 = account.get_data(self.start_date, self.end_date, metrics=['pageviews'], dimensions=['pageTitle', 'pagePath'], sort=['-pageviews'], max_results=max_results, start_index=max_results)
+            assert len(data2) == max_results
             for value in data1.tuple:
                 assert value not in data2
 
@@ -152,6 +154,24 @@ class GoogleAnalyticsTest(unittest.TestCase):
                 assert len(t) == 2
                 assert len(t[0]) == 2
                 assert len(t[1]) == 3
+
+    def test_data_attributes(self):
+        for profile_id in self.valid_profile_ids:
+            account = self.connection.get_account(profile_id)
+            metrics = ['pageviews', 'timeOnPage', 'entrances']
+            dimensions = ['pageTitle', 'pagePath']
+            data = account.get_data(self.start_date, self.end_date, metrics=metrics, dimensions=dimensions, max_results=10)
+            assert data.startDate == self.start_date
+            assert data.endDate == self.end_date
+            assert len(data.aggregates) == len(metrics)
+            for dp in data:
+                assert len(dp.metrics) == len(metrics)
+                for metric in metrics:
+                    assert hasattr(dp, metric)
+                assert len(dp.dimensions) == len(dimensions)
+                for dimension in dimensions:
+                    assert hasattr(dp, dimension)
+
 
 def test_suite():
     return unittest.makeSuite(GoogleAnalyticsTest)
