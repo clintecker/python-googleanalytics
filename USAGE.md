@@ -153,7 +153,6 @@ Patrick Collison has graciously implemented pulling multiple metrics and data in
 >>> for row in data.list:
 ...     print dict(zip(dimensions, row[0]))
 ...     print dict(zip(metrics, row[1]))
-...     print '.'*50
 ...
 {'pageTitle': u'How to find out more about Clint Ecker - Django Developer', 'pagePath': u'/'}
 {'entrances': 5, 'pageviews': 5, 'timeOnPage': u'0.0'}
@@ -182,13 +181,13 @@ Assume the following code as given in the following examples:
 One example of a `DataSet` level attribute is the property 'aggregates' which is an array of `Metric` objects. This property is aggregate metric data, irrespective of any dimensions for the given time span:
 <pre>
 >>> dataset.aggregates
-[<googleanalytics.data.Metric object at 0x102094b10>, <googleanalytics.data.Metric object at 0x102094ed0>, <googleanalytics.data.Metric object at 0x102094f10>]
+[&lt;googleanalytics.data.Metric object at 0x102094b10&gt;, &lt;googleanalytics.data.Metric object at 0x102094ed0&gt;, &lt;googleanalytics.data.Metric object at 0x102094f10&gt;]
 >>> for metric in dataset.aggregates:
-...     print "%s => %s" % (metric.name, metric.value)
+...     print "%s =&gt; %s" % (metric.name, metric.value)
 ...
-pageviews => 217870
-timeOnPage => 1.2157589E7
-entrances => 63873
+pageviews =&gt; 217870
+timeOnPage =&gt; 1.2157589E7
+entrances =&gt; 63873
 </pre>
 
 The aggregate metric values are also available as direct attributes of the `DataSet` object:
@@ -206,12 +205,12 @@ The aggregate metric values are also available as direct attributes of the `Data
 
 <pre>
 >>> dataset
-[<googleanalytics.data.DataPoint object at 0x102094f50>]
+[&lt;googleanalytics.data.DataPoint object at 0x102094f50&gt;]
 >>> datapoint = dataset[0]
 >>> datapoint.metrics
-[<googleanalytics.data.Metric object at 0x102094b10>, <googleanalytics.data.Metric object at 0x102094ed0>, <googleanalytics.data.Metric object at 0x102094f10>]
+[&lt;googleanalytics.data.Metric object at 0x102094b10&gt;, &lt;googleanalytics.data.Metric object at 0x102094ed0&gt;, &lt;googleanalytics.data.Metric object at 0x102094f10&gt;]
 >>> datapoint.dimensions
-[<googleanalytics.data.Dimension object at 0x1020990d0>, <googleanalytics.data.Dimension object at 0x102099110>]
+[&lt;googleanalytics.data.Dimension object at 0x1020990d0&gt;, &lt;googleanalytics.data.Dimension object at 0x102099110&gt;]
 </pre>
 
 As with the aggregates array attribute of `DataSet`, each of these metrics and dimensions are also direct attributes of the `DataPoint` object:
