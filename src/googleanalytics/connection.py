@@ -4,14 +4,12 @@ from googleanalytics.account import Account
 from xml.etree import ElementTree
 
 import re
-import socket
 import urllib
 import urllib2
 
 DEBUG = False
 PRETTYPRINT = True
-socket_timeout = 10
-socket.setdefaulttimeout(socket_timeout)
+TIMEOUT = 10
 
 class GAConnection:
     default_host = 'https://www.google.com'
@@ -105,7 +103,7 @@ class GAConnection:
             request = urllib2.Request(self.default_host + path, headers=headers)
 
         try:
-            response = urllib2.urlopen(request)
+            response = urllib2.urlopen(request, timeout=TIMEOUT)
         except urllib2.HTTPError, e:
             raise GoogleAnalyticsClientError(e)
         return response
