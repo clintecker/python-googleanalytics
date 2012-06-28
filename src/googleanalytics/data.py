@@ -15,9 +15,9 @@ class DataSet(list):
         xml_tree = ElementTree.fromstring(self.raw_xml)
         self.id = xml_tree.find('{http://www.w3.org/2005/Atom}id').text
         self.title = xml_tree.find('{http://www.w3.org/2005/Atom}title').text
-        self.totalResults = int(xml_tree.find('{http://a9.com/-/spec/opensearchrss/1.0/}totalResults').text)
-        self.startIndex = int(xml_tree.find('{http://a9.com/-/spec/opensearchrss/1.0/}startIndex').text)
-        self.itemsPerPage = int(xml_tree.find('{http://a9.com/-/spec/opensearchrss/1.0/}itemsPerPage').text)
+        self.totalResults = int(xml_tree.find('{http://a9.com/-/spec/opensearch/1.1/}totalResults').text)
+        self.startIndex = int(xml_tree.find('{http://a9.com/-/spec/opensearch/1.1/}startIndex').text)
+        self.itemsPerPage = int(xml_tree.find('{http://a9.com/-/spec/opensearch/1.1/}itemsPerPage').text)
 
         endDate = xml_tree.find('{http://schemas.google.com/analytics/2009}endDate').text
         self.endDate = datetime.date.fromtimestamp(time.mktime(time.strptime(endDate, '%Y-%m-%d')))
