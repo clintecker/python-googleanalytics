@@ -51,7 +51,7 @@ ImportError: No module named googleanalytics
 
 I strongly suggest developing in a virtual environment using [virtualenv](http://pypi.python.org/pypi/virtualenv) with its own Python interpreter.  You don't have to, but you might find your python development experience is a little nicer.
 
-If you plan on using virtualenv, I then highly reccomend you get Doug Hellmann's `virtualenvwrapper` running which simplified the process of creating and managing virtual environment like so:
+If you plan on using virtualenv, I then highly recommend you get Doug Hellmann's `virtualenvwrapper` running which simplified the process of creating and managing virtual environment like so:
 
 *Switching to a new environment:*
 
