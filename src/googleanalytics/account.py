@@ -86,7 +86,7 @@ class Account:
             
           Filters can be combined with AND boolean logic as well as with OR 
           boolean logic. When using both operators, the OR operator has higher 
-          precendence. When you are using more than one filter, please specify
+          precedence. When you are using more than one filter, please specify
           a fourth item in your list 'AND' or 'OR' to explicitly spell out the
           filters' relationships:
           
